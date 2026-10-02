@@ -1,0 +1,92 @@
+================================================================
+HOW TO RUN
+Personal Finance Simulation & Forecasting Platform
+BIM216 — Group No 13 — Phase 2
+================================================================
+
+The application is a Python 3.11+ desktop GUI that talks to Microsoft
+SQL Server. The whole thing should run with `python main.py` after the
+following one-time setup. There is no Docker, no web server, and no
+external service dependency.
+
+
+----------------------------------------------------------------
+1. Setting up the Python environment
+----------------------------------------------------------------
+"Open your terminal, navigate to the project root, and run:"   
+
+       python -m venv venv
+
+   Activate it:
+       Windows:   venv\Scripts\activate
+       macOS:     source venv/bin/activate
+       Linux:     source venv/bin/activate
+
+   "Install the required Python packages (all listed in requirements.txt):"
+
+       pip install -r requirements.txt
+
+   Required packages: pyodbc, bcrypt, customtkinter, matplotlib,
+   Faker, python-dateutil.
+
+----------------------------------------------------------------
+2. Configure the connection
+----------------------------------------------------------------
+   "Open `config.py` in a text editor and adjust the constants at the
+   top of the file to match the SQL Server."
+
+       DB_DRIVER  = "ODBC Driver 17 for SQL Server"
+       DB_SERVER  = "localhost"          # or "localhost\\SQLEXPRESS"
+       DB_NAME    = "PersonalFinanceDB"
+       USE_TRUSTED_CONNECTION = True     # Windows authentication
+       # If you use SQL auth instead:
+       USE_TRUSTED_CONNECTION = False
+       DB_USER    = "sa"
+       DB_PASSWORD = "YourStrongPasswordHere"
+
+----------------------------------------------------------------
+3. Load the database (creates DB + schema + seed data in one go)
+----------------------------------------------------------------
+   "From a command prompt with sqlcmd available:"
+
+       sqlcmd -S localhost -i database_dump.sql
+
+   If you used a named instance:
+       sqlcmd -S localhost\SQLEXPRESS -i database_dump.sql
+
+   With SQL authentication:
+       sqlcmd -S localhost -U sa -P YourStrongPasswordHere -i database_dump.sql
+
+
+   You should see:
+       Seed complete.
+       Users: 30 | Categories: 70 | Accounts: 90 | Transactions: 5679 | ...
+
+----------------------------------------------------------------
+4. Launch the application
+----------------------------------------------------------------
+      Run python main.py
+
+   "The login window opens. Sign in with one of the demo accounts:"
+
+       Username:   admin      Password:  Admin123!     (Admin role)
+       Username:   demo       Password:  Demo123!      (User role)
+
+   You can also register a fresh user on the "Register" tab.
+
+----------------------------------------------------------------
+Troubleshooting
+----------------------------------------------------------------
+* "Could not connect to SQL Server" — recheck DB_SERVER / driver name in
+  config.py; make sure SQL Server's TCP/IP protocol is enabled and the
+  service is running. For Windows auth, run from an account that has
+  rights on the instance.
+* "The driver did not return any results" / TLS errors with Driver 18 —
+  config.py already sets `TrustServerCertificate=yes;Encrypt=no;`
+  for local development. Drop those for production.
+* "Unicode characters look garbled" — the schema uses NVARCHAR
+  everywhere; make sure your terminal supports UTF-8.
+
+================================================================
+End of how_to_run.txt
+================================================================
